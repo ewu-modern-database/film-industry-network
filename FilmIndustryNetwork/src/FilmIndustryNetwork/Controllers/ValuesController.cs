@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FilmIndustryNetwork.MyApiFilms;
+using FilmIndustryNetwork.MyApiFilms.Enities;
+using FilmIndustryNetwork.Services;
 using Microsoft.AspNet.Mvc;
 
-namespace film_industry_network.Controllers
+namespace FilmIndustryNetwork.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller
@@ -21,6 +24,24 @@ namespace film_industry_network.Controllers
         public string Get(int id)
         {
             return "value";
+        }
+
+        [HttpGet("actor/{name}")]
+        public IActionResult GetActor(string name)
+        {
+            var client = new MyApiFilmsClient();
+            var result = client.GetDataAsObject<List<Person>>(name, DataSetType.Person);
+            var personDataProcessor = new PersonDataProcessor();
+            var resp = personDataProcessor.ExtractDataFromPersonObject(result[0]);
+            return Ok(resp);
+        }
+
+        [HttpGet("movie/{title}")]
+        public IActionResult GetMovie(string title)
+        {
+            var client = new MyApiFilmsClient();
+            var result = client.GetDataAsObject<List<Movie>>(title, DataSetType.Movie);
+            return Ok(result);
         }
 
         // POST api/values
