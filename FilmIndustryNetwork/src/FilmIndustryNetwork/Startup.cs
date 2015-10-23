@@ -10,6 +10,9 @@ using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Dnx.Runtime;
 using Swashbuckle.Swagger;
+using FilmIndustryNetwork.Services;
+using FilmIndustryNetwork.Interfaces;
+
 
 namespace FilmIndustryNetwork
 {
@@ -55,6 +58,10 @@ namespace FilmIndustryNetwork
             });
 
             services.AddRouting();
+            services.AddScoped<IPersonService, PersonService>();
+            services.AddScoped<IMovieService, MovieService>();
+            services.AddScoped<IPersonRepository, PersonRepository>();
+            services.AddScoped<IMovieRepository, MovieRepository>();
 
             //services.AddWebApiConventions();
         }
