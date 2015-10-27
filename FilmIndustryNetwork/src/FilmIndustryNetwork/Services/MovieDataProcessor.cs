@@ -4,7 +4,7 @@ using System.Linq;
 using FilmIndustryNetwork.Entities;
 using FilmIndustryNetwork.Interfaces;
 using FilmIndustryNetwork.Utilities;
-using Movie = FilmIndustryNetwork.MyApiFilms.Enities.Movie;
+using Movie = FilmIndustryNetwork.MyApiFilms.Entities.Movie;
 
 namespace FilmIndustryNetwork.Services
 {

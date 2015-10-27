@@ -58,10 +58,12 @@ namespace FilmIndustryNetwork
             });
 
             services.AddRouting();
-            services.AddScoped<IPersonService, PersonService>();
-            services.AddScoped<IMovieService, MovieService>();
+
+            services.AddSingleton<IContext, NetworkContext>();
             services.AddScoped<IPersonRepository, PersonRepository>();
             services.AddScoped<IMovieRepository, MovieRepository>();
+            services.AddScoped<IPersonService, PersonService>();
+            services.AddScoped<IMovieService, MovieService>();
 
             //services.AddWebApiConventions();
         }

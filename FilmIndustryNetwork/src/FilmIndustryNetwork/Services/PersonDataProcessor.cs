@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using FilmIndustryNetwork.Entities;
 using FilmIndustryNetwork.Interfaces;
 using FilmIndustryNetwork.Utilities;
-using Person = FilmIndustryNetwork.MyApiFilms.Enities.Person;
+using Person = FilmIndustryNetwork.MyApiFilms.Entities.Person;
 
 namespace FilmIndustryNetwork.Services
 {

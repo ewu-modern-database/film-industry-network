@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FilmIndustryNetwork.Entities;
 using FilmIndustryNetwork.Interfaces;
 using FilmIndustryNetwork.Utilities;
@@ -11,50 +12,68 @@ namespace FilmIndustryNetwork.Services
     {
         private readonly IMovieRepository _movieRepo;
 
-        public Movie CreateMovie(string Title, string Plot, string Rated, string Rating, List<string> Genres, List<string> FilmingLocations, List<string> Countries, List<string> Languages, string Year)
+        public MovieService(IMovieRepository movieRepo)
         {
-            if (Title == null)
+            _movieRepo = movieRepo;
+        }
+
+        public async Task AddMovieAsync(Movie movie)
+        {
+            ThrowIfMovieNull(movie);
+            await _movieRepo.Add(movie);
+        }
+
+        public async Task UpdateMovieAsync(Movie movie)
+        {
+            ThrowIfMovieNull(movie);
+            if ((await GetMovieByTitleAndYearAsync(movie.Title, movie.Year)) == null)
             {
-                throw new ArgumentNullException(nameof(Title));
+                await AddMovieAsync(movie);
+                return;
             }
+            await _movieRepo.Update(movie);
+        }
 
-
-
-            var movie = new Movie
+        public async Task AddOrUpdateMovieWithRelationAsync(Movie movie, Person person, string relationType)
+        {
+            ThrowIfMovieNull(movie);
+            ThrowIfPersonNull(person);
+            if ((await GetMovieByTitleAndYearAsync(movie.Title, movie.Year)) == null)
             {
-                Title = Title,
-                Plot = Plot,
-                Rated = Rated,
-                Rating = Rating,
-                Genres = Genres,
-                FilmingLocations = FilmingLocations,
-                Countries = Countries,
-                Languages = Languages,
-                Year = Year,
-
-
-            };
-            _movieRepo.Add(movie);
-            return movie;
+                await _movieRepo.AddWithRelationToPerson(movie, person, relationType);
+                return;
+            }
+            await UpdateMovieAsync(movie);
+            await _movieRepo.AddRelationToPerson(movie, person, relationType);
         }
 
-        public Movie UpdateMovie(string Title, string Plot, string Rated, string Rating, List<string> Genres, List<string> FilmingLocations, List<string> Countries, List<string> Languages, string Year)
+        public async Task<Movie> GetMovieByTitleAndYearAsync(string title, string year)
         {
-
+            if (title == null)
+                throw new ArgumentNullException(nameof(title));
+            if (year == null)
+                throw new ArgumentNullException(nameof(year));
+            return await _movieRepo.Get(title, year);
         }
 
-        public Movie GetMovie(string Title, string Year)
-
+        private void ThrowIfMovieNull(Movie movie)
         {
-            return _movieRepo.Get(Title, Year);
+            if (movie == null)
+                throw new ArgumentNullException(nameof(movie));
+            if (string.IsNullOrEmpty(movie.Title))
+                throw new ArgumentNullException(nameof(movie.Title));
+            if (string.IsNullOrEmpty(movie.Id))
+                throw new ArgumentNullException(nameof(movie.Id));
         }
 
-        public void DeleteMovie(string Title, string Year)
+        private void ThrowIfPersonNull(Person person)
         {
-            return _movieRepo.Delete(Title, Year);
+            if (person == null)
+                throw new ArgumentNullException(nameof(person));
+            if (string.IsNullOrEmpty(person.Name))
+                throw new ArgumentNullException(nameof(person.Name));
+            if (string.IsNullOrEmpty(person.Id))
+                throw new ArgumentNullException(nameof(person.Id));
         }
-
     }
-
-
 }

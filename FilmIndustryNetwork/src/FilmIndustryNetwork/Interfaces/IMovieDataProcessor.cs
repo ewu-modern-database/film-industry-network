@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
+using FilmIndustryNetwork.MyApiFilms.Entities;
 using FilmIndustryNetwork.Utilities;
 
 namespace FilmIndustryNetwork.Interfaces
 {
     interface IMovieDataProcessor
     {
-        Dictionary<string, object> ExtractDataFromMovieObject(MyApiFilms.Enities.Movie movie);
+        Dictionary<string, object> ExtractDataFromMovieObject(Movie movie);
 
-        List<Entities.Person> ExtractPeopleFromMovieObject(MyApiFilms.Enities.Movie movie, ExtractType type);
+        List<Entities.Person> ExtractPeopleFromMovieObject(Movie movie, ExtractType type);
 
-        Entities.Movie ExtractImportantDataFromMovieObject(MyApiFilms.Enities.Movie movie);
+        Entities.Movie ExtractImportantDataFromMovieObject(Movie movie);
     }
 }

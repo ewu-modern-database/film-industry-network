@@ -4,35 +4,69 @@ using System.Linq;
 using System.Threading.Tasks;
 using FilmIndustryNetwork.Interfaces;
 using FilmIndustryNetwork.Entities;
+using FilmIndustryNetwork.Utilities;
+using Neo4jClient;
+
 namespace FilmIndustryNetwork.Services
 {
     public class MovieRepository : IMovieRepository
     {
-        Movie Get(string Title, string Year)
+        private readonly IContext _db;
+
+        public MovieRepository(IContext context)
         {
-            var client = new GraphClient(new Uri("http://localhost:7474/db/data"));
-            client.Connect();
-            client.Cypher
-            .Match("(movie:Movie)")
-            .Where((Movie movie) => movie.Title == Title && movie.Year == Year)
-            .Return(movie => movie.As<Movie>())
-            .Results
+            _db = context;
         }
 
-        void Add(Movie movie)
+        public Task<Movie> Get(string title, string year)
         {
-          
+            return Task.FromResult(_db.MovieMatch()
+                .Where((Movie movie) => movie.Title == title && movie.Year == year)
+                .Return(movie => movie.As<Movie>())
+                .ResultsAsync
+                .Result
+                .FirstOrDefault());
         }
 
-        void Delete(string Title, string Year)
+        public async Task Add(Movie movie)
         {
-            var client = new GraphClient(new Uri("http://localhost:7474/db/data"));
-            client.Connect();
-            client.Cypher
-            .Match("(movie:Movie)")
-            .Where((Movie movie) => movie.Title == Title && movie.Year == Year)
-            .Delete("movie")
-            .ExecuteWithoutResults();
+            await _db.MovieCreate()
+                .WithParam("newMovie", movie)
+                .ExecuteWithoutResultsAsync();
+        }
+
+        public async Task AddWithRelationToPerson(Movie movie, Person existingPerson, string relationType)
+        {
+            await _db.PersonMatch()
+                .Where((Person person) => person.Name == existingPerson.Name)
+                .CreateUnique(
+                    $"person-[:{relationType}]->(movie:Movie {{newMovie}})")
+                .WithParam("newMovie", movie)
+                .ExecuteWithoutResultsAsync();
+        }
+
+        public async Task Update(Movie updatedMovie)
+        {
+            var query = _db.MovieMatch()
+                .Where((Movie movie) => movie.Id == updatedMovie.Id)
+                .Set("movie = {updatedMovie}")
+                .WithParam("updatedMovie", updatedMovie);
+            var q = query.Query;
+            await query.ExecuteWithoutResultsAsync();
+        }
+
+        public async Task AddRelationToPerson(Movie existingMovie, Person existingPerson, string relationType)
+        {
+            var query = _db.Match($"(movie:Movie)",
+                $"(person:Person)")
+                .Where((Movie movie) => movie.Id == existingMovie.Id)
+                .AndWhere((Person person) => person.Id == existingPerson.Id)
+                .CreateUnique(
+                    $"person-[:{relationType}]->movie");
+
+            var q = query.Query;
+            await query.ExecuteWithoutResultsAsync();
+
         }
 
     }

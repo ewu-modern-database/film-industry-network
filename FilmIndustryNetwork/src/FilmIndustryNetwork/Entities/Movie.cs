@@ -9,6 +9,7 @@ namespace FilmIndustryNetwork.Entities
     public class Movie
     {
         #region Properties Stored in Node
+        public string Id { get; set; }
         public string Title { get; set; }
         public string Plot { get; set; }
         public string Rated { get; set; }

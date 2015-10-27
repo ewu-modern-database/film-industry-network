@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using FilmIndustryNetwork.Utilities;
 using FilmIndustryNetwork.Entities;
 
@@ -7,10 +8,9 @@ namespace FilmIndustryNetwork.Interfaces
 {
     public interface IPersonService
     {
-        Person CreatePerson(string Id, string Name, string BirthName, string Bio, string PlaceOfBirt, string DateOfBirth, string UrlPhoto, bool NeedsApiLookup);
-        Person UpdatePerson(string Id, string Name, string BirthName, string Bio, string PlaceOfBirt, string DateOfBirth, string UrlPhoto);
-        Person GetPerson(string Id);
-        void DeletePerson(string Id);
-
+        Task AddPersonAsync(Person person);
+        Task UpdatePersonAsync(Person person);
+        Task<Person> GetPersonByNameAsync(string name);
+        Task<object> GetDegreesOfSeparation(Person startingPerson, Person endingPerson);
     }
 }

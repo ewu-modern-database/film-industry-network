@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace FilmIndustryNetwork.MyApiFilms.Enities
+﻿namespace FilmIndustryNetwork.MyApiFilms.Entities
 {
     public class SalaryWrapper
     {
