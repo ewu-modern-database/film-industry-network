@@ -1,7 +1,7 @@
 ﻿{
   "appSettings": {
     "Neo4jConnection": "http://localhost:7474/db/data",
-    "Neo4jUserName": "neo4j",
-    "Neo4jPassword": "6starwars"
+    "Neo4jUserName": "",
+    "Neo4jPassword": ""
   }
 }

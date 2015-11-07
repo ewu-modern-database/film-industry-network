@@ -15,8 +15,8 @@ namespace FilmIndustryNetwork.Services
         public NetworkContext(IOptions<AppSettings> options)
         {
             var appSettings = options.Options;
-            _db = new GraphClient(new Uri(appSettings.Neo4jConnection), appSettings.Neo4jUserName,
-                appSettings.Neo4jPassword);
+            _db = new GraphClient(new Uri(appSettings.Neo4jConnection));//, appSettings.Neo4jUserName,
+               // appSettings.Neo4jPassword);
             _db.Connect();
         }
 
