@@ -2,13 +2,12 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using FilmIndustryNetwork.Interfaces;
 using FilmIndustryNetwork.Entities;
-using FilmIndustryNetwork.Entities.RawGraph;
-using FilmIndustryNetwork.Utilities;
+using FilmIndustryNetwork.Entities.Graph;
 using Neo4jClient.Cypher;
-using Neo4jClient.Execution;
 using Neo4jClient;
 
 namespace FilmIndustryNetwork.Services
@@ -22,27 +21,43 @@ namespace FilmIndustryNetwork.Services
             _db = context;
         }
 
-        public Task<Person> Get(string name)
+        public Task<Person> Get(Expression<Func<Person, bool>> expression)
         {
             return Task.FromResult(_db.PersonMatch()
-                .Where((Person person) => person.Name == name)
+                .Where(expression)
                 .Return(person => person.As<Person>())
                 .Results
                 .FirstOrDefault());
         }
 
-        public Task<List<RawResult>> GetPath(Person startingPerson, Person endingPerson)
+        public Task<IEnumerable<MixedResult>> GetGraph(Expression<Func<Person, bool>> expression)
         {
-            return Task.FromResult(_db
-                .Match($"x=shortestPath((start:Person)" +
-                       $"-[*]-(end:Person))")
-                .Where((Person start) => start.Name == startingPerson.Name)
-                .AndWhere((Person end) => end.Name == endingPerson.Name)
-                .Return(x => new RawResult
+            return Task.FromResult(_db.PersonMatchWithRelationships()
+                .Where(expression)
+                .Return(person => new MixedResult
                 {
-                    Nodes = Return.As<IEnumerable<Node<Data>>>("nodes(x)"),
+                    Nodes = Return.As<IEnumerable<Node<MixedData>>>("nodes(x)"),
                     Relationships = Return.As<IEnumerable<RelationshipInstance<object>>>("rels(x)")
                 })
+                .Results);
+        }
+
+        public Task<List<MixedResult>> GetPath(Person startingPerson, Person endingPerson)
+        {
+            var query = _db
+                .Match("x=shortestPath((start:Person)" +
+                       "-[*]-(end:Person))")
+                .Where((Person start) => start.Name == startingPerson.Name)
+                .AndWhere((Person end) => end.Name == endingPerson.Name)
+                .Return(x => new MixedResult
+                {
+                    Nodes = Return.As<IEnumerable<Node<MixedData>>>("nodes(x)"),
+                    Relationships = Return.As<IEnumerable<RelationshipInstance<object>>>("rels(x)")
+                });
+
+            var str = query.Query.QueryText;
+
+            return Task.FromResult(query
                 .Results
                 .ToList());
         }
@@ -56,10 +71,14 @@ namespace FilmIndustryNetwork.Services
 
         public async Task Update(Person updatedPerson)
         {
-            await _db.PersonMatch()
+            await _db.PersonMerge()
                 .Where((Person person) => person.Id == updatedPerson.Id)
-                .Set("person = {updatedPerson}")
-                .WithParam("updatedPerson", updatedPerson)
+                .OnCreate()
+                .Set("person = {_updatedPerson}")
+                .WithParams(new
+                {
+                    _updatedPerson = updatedPerson
+                })
                 .ExecuteWithoutResultsAsync();
         }
     }

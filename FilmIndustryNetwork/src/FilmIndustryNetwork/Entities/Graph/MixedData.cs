@@ -2,17 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Neo4jClient;
 
-namespace FilmIndustryNetwork.Entities.RawGraph
+namespace FilmIndustryNetwork.Entities.Graph
 {
-    public class RawResult
-    {
-        public IEnumerable<Node<Data>> Nodes { get; set; }
-        public IEnumerable<RelationshipInstance<object>> Relationships { get; set; }
-    }
-
-    public class Data
+    public class MixedData
     {
         public string Id { get; set; }
         public string Title { get; set; }
@@ -28,7 +21,7 @@ namespace FilmIndustryNetwork.Entities.RawGraph
         public string BirthName { get; set; }
         public string Bio { get; set; }
         public string PlaceOfBirth { get; set; }
-        public string DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; }
         public string UrlPhoto { get; set; }
     }
 }

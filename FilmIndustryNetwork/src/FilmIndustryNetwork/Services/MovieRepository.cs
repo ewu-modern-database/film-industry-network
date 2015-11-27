@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using FilmIndustryNetwork.Interfaces;
 using FilmIndustryNetwork.Entities;
+using FilmIndustryNetwork.Entities.Graph;
 using FilmIndustryNetwork.Utilities;
 using Neo4jClient;
+using Neo4jClient.Cypher;
 
 namespace FilmIndustryNetwork.Services
 {
@@ -18,15 +21,43 @@ namespace FilmIndustryNetwork.Services
             _db = context;
         }
 
-        public Task<Movie> Get(string title, string year)
+        public Task RawQuery(string query)
+        {
+            _db.RunRawQuery(query);
+            return Task.FromResult(Task.Delay(0));
+        }
+
+        public Task<Movie> Get(Expression<Func<Movie, bool>> expression)
         {
             return Task.FromResult(_db.MovieMatch()
-                .Where((Movie movie) => movie.Title == title && movie.Year == year)
+                .Where(expression)
                 .Return(movie => movie.As<Movie>())
-                .ResultsAsync
-                .Result
+                .Results
                 .FirstOrDefault());
         }
+
+        public Task<List<Movie>> GetAll(Expression<Func<Movie, bool>> expression)
+        {
+            return Task.FromResult(_db.MovieMatch()
+                .Where(expression)
+                .Return(movie => movie.As<Movie>())
+                .Results
+                .ToList());
+        }
+
+        public Task<IEnumerable<MixedResult>> GetGraph(Expression<Func<Movie, bool>> expression)
+        {
+            return Task.FromResult(_db.MovieMatchWithRelationships()
+                .Where(expression)
+                .Return(x => new MixedResult
+                {
+                    Nodes = Return.As<IEnumerable<Node<MixedData>>>("nodes(x)"),
+                    Relationships = Return.As<IEnumerable<RelationshipInstance<object>>>("rels(x)")
+                })
+                .Results
+                .ToList()
+                .AsEnumerable());
+        } 
 
         public async Task Add(Movie movie)
         {
@@ -47,10 +78,14 @@ namespace FilmIndustryNetwork.Services
 
         public async Task Update(Movie updatedMovie)
         {
-            var query = _db.MovieMatch()
+            var query = _db.MovieMerge()
                 .Where((Movie movie) => movie.Id == updatedMovie.Id)
-                .Set("movie = {updatedMovie}")
-                .WithParam("updatedMovie", updatedMovie);
+                .OnCreate()
+                .Set("movie = {_updatedMovie}")
+                .WithParams(new
+                {
+                    _updatedMovie = updatedMovie
+                });
             var q = query.Query;
             await query.ExecuteWithoutResultsAsync();
         }
@@ -59,8 +94,8 @@ namespace FilmIndustryNetwork.Services
         {
             var query = _db.Match($"(movie:Movie)",
                 $"(person:Person)")
-                .Where((Movie movie) => movie.Id == existingMovie.Id)
-                .AndWhere((Person person) => person.Id == existingPerson.Id)
+                .Where((Movie movie) => movie.Title == existingMovie.Title)
+                .AndWhere((Person person) => person.Name == existingPerson.Name)
                 .CreateUnique(
                     $"person-[:{relationType}]->movie");
 

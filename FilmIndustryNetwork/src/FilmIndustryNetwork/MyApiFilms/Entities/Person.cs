@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace FilmIndustryNetwork.MyApiFilms.Entities
 {
     public class Person
     {
+        public string UniqueName { get; set; }
         public string ActorActress { get; set; }
         public string Bio { get; set; }
         public string BirthName { get; set; }
-        public string DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; }
         public List<Filmographies> Filmographies { get; set; }
         public string Height { get; set; }
         public string IdIMDB { get; set; }

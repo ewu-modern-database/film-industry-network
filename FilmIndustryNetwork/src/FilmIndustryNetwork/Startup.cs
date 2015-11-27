@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
-using Microsoft.AspNet.Http;
-using Microsoft.AspNet.Routing;
 using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Dnx.Runtime;
 using Swashbuckle.Swagger;
 using FilmIndustryNetwork.Services;
 using FilmIndustryNetwork.Interfaces;
+using FilmIndustryNetwork.Utilities;
+using Microsoft.AspNet.Mvc;
+using Newtonsoft.Json;
 
 
 namespace FilmIndustryNetwork
@@ -64,15 +63,33 @@ namespace FilmIndustryNetwork
             services.AddScoped<IMovieRepository, MovieRepository>();
             services.AddScoped<IPersonService, PersonService>();
             services.AddScoped<IMovieService, MovieService>();
+            services.AddScoped<IGraphMovieService, GraphMovieService>();
+            services.AddScoped<IGraphPersonService, GraphPersonService>();
+            services.AddTransient<IDataCollectorFactory, DataCollectorFactory>();
+
+            services.Configure<MvcOptions>(options =>
+            {
+                var settings = new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Auto
+                };
+                var jsonFormatter = options.OutputFormatters.Single(o => o.GetType() == typeof(JsonOutputFormatter));
+                options.OutputFormatters.Remove(jsonFormatter);
+                var outputFormatter = new JsonOutputFormatter { SerializerSettings = settings };
+                options.OutputFormatters.Add(outputFormatter);
+            });
 
             //services.AddWebApiConventions();
         }
 
         // Configure is called after ConfigureServices is called.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider provider)
         {
             // Configure the HTTP request pipeline.
-            app.UseStaticFiles();
+            //app.UseStaticFiles();
+
+            // Start data collecting service
+            app.UseDataCollector(provider);
 
             // Add MVC to the request pipeline.
             app.UseMvc();

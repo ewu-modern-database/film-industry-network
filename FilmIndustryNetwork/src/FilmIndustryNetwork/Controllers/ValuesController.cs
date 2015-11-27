@@ -64,7 +64,7 @@ namespace FilmIndustryNetwork.Controllers
         [HttpGet("movie/{title}")]
         public async Task<IActionResult> GetMovie(string title)
         {
-            var client = new MyApiFilmsClient();
+            //var client = new MyApiFilmsClient();
             var result = await _movieService.GetMovieByTitleAndYearAsync("Awesome Movie", "2015");
             return Ok(result);
         }

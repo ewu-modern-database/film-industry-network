@@ -9,15 +9,25 @@ namespace FilmIndustryNetwork.Interfaces
 {
     public interface IContext
     {
+        void RunRawQuery(string query);
+
         ICypherFluentQuery PersonCreate();
 
         ICypherFluentQuery MovieCreate();
 
         ICypherFluentQuery PersonMatch();
 
+        ICypherFluentQuery PersonMatchWithRelationships();
+
         ICypherFluentQuery MovieMatch();
 
+        ICypherFluentQuery MovieMatchWithRelationships();
+
         ICypherFluentQuery Match(params string[] matchText);
+
+        ICypherFluentQuery MovieMerge();
+
+        ICypherFluentQuery PersonMerge();
 
         IRawGraphClient RawClient();
     }

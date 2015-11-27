@@ -14,7 +14,7 @@ namespace FilmIndustryNetwork.Entities
         public string BirthName { get; set; }
         public string Bio { get; set; }
         public string PlaceOfBirth { get; set; }
-        public string DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; }
         public string UrlPhoto { get; set; }
         /// <summary>
         /// This is a flag so that we know that this node

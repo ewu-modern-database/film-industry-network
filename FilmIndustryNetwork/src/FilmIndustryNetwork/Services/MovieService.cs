@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FilmIndustryNetwork.Entities;
+using FilmIndustryNetwork.Entities.Graph;
 using FilmIndustryNetwork.Interfaces;
 using FilmIndustryNetwork.Utilities;
 
@@ -15,6 +16,11 @@ namespace FilmIndustryNetwork.Services
         public MovieService(IMovieRepository movieRepo)
         {
             _movieRepo = movieRepo;
+        }
+
+        public async Task RunRawQuery(string query)
+        {
+            await _movieRepo.RawQuery(query);
         }
 
         public async Task AddMovieAsync(Movie movie)
@@ -43,8 +49,15 @@ namespace FilmIndustryNetwork.Services
                 await _movieRepo.AddWithRelationToPerson(movie, person, relationType);
                 return;
             }
-            await UpdateMovieAsync(movie);
+            //await UpdateMovieAsync(movie);
             await _movieRepo.AddRelationToPerson(movie, person, relationType);
+        }
+
+        public async Task<Movie> GetMovieByIdAsync(string id)
+        {
+            if (id == null)
+                throw new ArgumentNullException(nameof(id));
+            return await _movieRepo.Get((Movie movie) => movie.Id == id);
         }
 
         public async Task<Movie> GetMovieByTitleAndYearAsync(string title, string year)
@@ -53,7 +66,7 @@ namespace FilmIndustryNetwork.Services
                 throw new ArgumentNullException(nameof(title));
             if (year == null)
                 throw new ArgumentNullException(nameof(year));
-            return await _movieRepo.Get(title, year);
+            return await _movieRepo.Get((Movie movie) => movie.Title == title && movie.Year == year);
         }
 
         private void ThrowIfMovieNull(Movie movie)

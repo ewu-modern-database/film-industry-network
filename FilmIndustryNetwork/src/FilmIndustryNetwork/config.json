@@ -1,7 +1,14 @@
 ﻿{
   "appSettings": {
+<<<<<<< Updated upstream
     "Neo4jConnection": "http://localhost:7474/db/data",
     "Neo4jUserName": "",
     "Neo4jPassword": ""
+=======
+    "MyApiFilmsToken": "42c4cd94-737f-48f6-94ff-408384969730",
+    "Neo4jConnection": "http://czifrotech.com:7474/db/data",
+    "Neo4jUserName": "neo4j",
+    "Neo4jPassword": "6starwars"
+>>>>>>> Stashed changes
   }
 }

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FilmIndustryNetwork.Utilities;
 using FilmIndustryNetwork.Entities;
+using FilmIndustryNetwork.Entities.Graph;
 
 
 namespace FilmIndustryNetwork.Interfaces
@@ -11,6 +12,6 @@ namespace FilmIndustryNetwork.Interfaces
         Task AddPersonAsync(Person person);
         Task UpdatePersonAsync(Person person);
         Task<Person> GetPersonByNameAsync(string name);
-        Task<object> GetDegreesOfSeparation(Person startingPerson, Person endingPerson);
+        Task<List<MixedResult>> GetDegreesOfSeparation(Person startingPerson, Person endingPerson);
     }
 }

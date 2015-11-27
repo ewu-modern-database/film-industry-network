@@ -1,20 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using FilmIndustryNetwork.Entities;
 using FilmIndustryNetwork.Interfaces;
-using FilmIndustryNetwork.Utilities;
-using Movie = FilmIndustryNetwork.MyApiFilms.Entities.Movie;
-using Neo4jClient;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web;
+using FilmIndustryNetwork.Entities.Graph;
 
 namespace FilmIndustryNetwork.Services
 {
@@ -48,10 +37,10 @@ namespace FilmIndustryNetwork.Services
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
-            return await _personRepo.Get(name);
+            return await _personRepo.Get((Person person) => person.Name == name);
         }
 
-        public async Task<object> GetDegreesOfSeparation(Person startingPerson, Person endingPerson)
+        public async Task<List<MixedResult>> GetDegreesOfSeparation(Person startingPerson, Person endingPerson)
         {
             if (startingPerson == null)
                 throw new ArgumentNullException(nameof(startingPerson));

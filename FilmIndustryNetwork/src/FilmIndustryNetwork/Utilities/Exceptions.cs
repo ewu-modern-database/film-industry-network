@@ -14,4 +14,14 @@ namespace FilmIndustryNetwork.Utilities
             UrlOfResponse = urlOfResponse;
         }
     }
+
+    public class MyApiFilmsTimeoutException : Exception
+    {
+        public string UrlOfRequest { get; set; }
+
+        public MyApiFilmsTimeoutException(string urlOfRequest)
+        {
+            UrlOfRequest = urlOfRequest;
+        }
+    }
 }
